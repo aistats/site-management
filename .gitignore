@@ -52,3 +52,6 @@ docs/yaml_frontmatter_examples.md
 # Python bytecode
 __pycache__/
 *.py[cod]
+
+# Local multi-root IDE workspace (paths are machine-local)
+*.code-workspace
