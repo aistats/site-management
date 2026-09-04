@@ -58,12 +58,12 @@ Each `pages[]` entry:
 
 | Name | Intent |
 |------|--------|
-| `main_after_nav` | Keep the primary article/content region after site chrome (nav, footer, cookie banners) |
-| `event_bios` | Invited/award eventlist-with-bios pages: speaker or award blocks plus linked images |
-| `dates_tables` | Dates page tables → structured deadline rows (feeds `_config.yml` patch path, not long prose) |
-| `hotels_venue` | Hotels / venue blocks for accommodation prose and venue YAML hints |
-| `registration_blocks` | Registration-related blurbs only; keep portal as a link |
-| `schedule_summary` | Meeting dates / high-level schedule text; link out to virtual calendar (no full calendar dump) |
+| `main_after_nav` | Keep the primary article body after stripping nav, year switcher, empty Bootstrap shells |
+| `event_bios` | Invited/award event cards: titles, bios, images; drop badges/bookmarks |
+| `dates_tables` | Paper/workshop/journal (+ main conference) deadline tables from Dates |
+| `hotels_venue` | Hotels / venue prose after chrome strip |
+| `registration_blocks` | Registration note + meeting dates + Attendees deadline rows (not full Dates dump) |
+| `schedule_summary` | Meeting dates + main conference start + calendar link |
 | `home_announcements` | Selective home/index announcement blocks; high clobber risk — gated |
 | `config_merge` | Structured fields only (deadlines, venue); no pandoc body ownership |
 | `none` | No fetch/convert (year-only placeholder row for reporting) |

@@ -19,7 +19,7 @@ from sync_virtual.config_patch import (
     apply_proposal_to_config,
     build_config_proposal,
 )
-from sync_virtual.convert import convert_page
+from sync_virtual.convert import convert_page, extract_fragment
 from sync_virtual.manifest import load_manifest
 
 MANIFEST = PACKAGE / "manifests" / "aistats2026.yml"
@@ -49,6 +49,56 @@ class SyncVirtualTests(unittest.TestCase):
             result.body_markdown,
         )
         self.assertIn("title: Call for Papers", result.full_markdown)
+        self.assertNotIn("child-menu", result.body_markdown)
+        self.assertNotIn("Select Year", result.body_markdown)
+        self.assertNotIn("container-fluid", result.body_markdown)
+
+    def test_event_bios_strips_card_chrome(self) -> None:
+        page = self.manifest.page_by_id("invited")
+        result = convert_page(
+            self.manifest,
+            page,
+            fixture=FIXTURES / "invited.html",
+        )
+        self.assertIn("Eric Xing", result.body_markdown)
+        self.assertIn("must survive chrome stripping", result.body_markdown)
+        self.assertNotIn("card-bookmark", result.body_markdown)
+        self.assertNotIn("3 Events", result.body_markdown)
+        self.assertNotIn("Select Year", result.body_markdown)
+
+    def test_dates_strategies_diverge(self) -> None:
+        html = (FIXTURES / "dates.html").read_text(encoding="utf-8")
+        dates_md = convert_page(
+            self.manifest,
+            self.manifest.page_by_id("dates"),
+            fixture=FIXTURES / "dates.html",
+        ).body_markdown
+        reg_md = convert_page(
+            self.manifest,
+            self.manifest.page_by_id("registration"),
+            fixture=FIXTURES / "dates.html",
+        ).body_markdown
+        sched_md = convert_page(
+            self.manifest,
+            self.manifest.page_by_id("schedule"),
+            fixture=FIXTURES / "dates.html",
+        ).body_markdown
+
+        self.assertIn("Abstract Submission", dates_md)
+        self.assertIn("Registration", reg_md)
+        self.assertIn("registration portal", reg_md.lower())
+        self.assertIn("Schedule", sched_md)
+        self.assertIn("calendar", sched_md.lower())
+        # Registration should emphasise attendee rows, not the full paper-deadline wall.
+        self.assertIn("Registration Opens", reg_md)
+        self.assertNotEqual(dates_md, reg_md)
+        self.assertNotEqual(reg_md, sched_md)
+        self.assertNotEqual(dates_md, sched_md)
+        # Smoke: specialised HTML fragments differ before pandoc too.
+        self.assertNotEqual(
+            extract_fragment(html, "dates_tables"),
+            extract_fragment(html, "registration_blocks", year=2026),
+        )
 
     def test_default_sync_does_not_write(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
