@@ -1,0 +1,5 @@
+# Dependencies for scripts/sync_virtual (CIP-0004).
+# Prefer the project VibeSafe venv:
+#   .venv-vibesafe/bin/pip install -r scripts/sync_virtual/requirements.txt
+PyYAML>=5.4
+beautifulsoup4>=4.12

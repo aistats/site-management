@@ -1,7 +1,7 @@
 ---
 id: "2026-09-04_cip0004-compare-report"
 title: "CIP-0004: Compare-first report, diffs, and virtual update request"
-status: "Ready"
+status: "Completed"
 priority: "High"
 created: "2026-09-04"
 last_updated: "2026-09-04"
@@ -24,11 +24,11 @@ Default sync mode: compare candidate (from virtual) to existing `aistats20XX` pa
 
 ## Acceptance Criteria
 
-- [ ] Default CLI run writes a sync report without changing year-site content
-- [ ] Classifications implemented per CIP-0004 table
-- [ ] Drift pages produce a non-empty unified diff (body compare; front matter ignorable)
-- [ ] `virtual-update-request.md` (or equivalent) lists drifted pages with year URL, virtual URL, and excerpts suitable to send to the virtual operator
-- [ ] Match / missing / year-only appear clearly in the summary
+- [x] Default CLI run writes a sync report without changing year-site content
+- [x] Classifications implemented per CIP-0004 table
+- [x] Drift pages produce a non-empty unified diff (body compare; front matter ignorable)
+- [x] `virtual-update-request.md` (or equivalent) lists drifted pages with year URL, virtual URL, and excerpts suitable to send to the virtual operator
+- [x] Match / missing / year-only appear clearly in the summary
 
 ## Implementation Notes
 
@@ -43,3 +43,7 @@ Normalise whitespace/links as needed for stable compare, but do not rewrite pros
 ### 2026-09-04
 
 Task created at Ready after CIP-0004 acceptance.
+
+### 2026-09-04 (later)
+
+Completed: `compare.py` + default `sync` CLI; writes `summary.md`, `diffs/`, `virtual-update-request.md`.

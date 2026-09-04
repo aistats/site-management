@@ -1,0 +1,199 @@
+# Default 2026 inventory for CIP-0004 sync_virtual.
+# Year repos may override with virtual-sync.yml at the repo root.
+year: 2026
+virtual_base: https://virtual.aistats.org
+target_repo: ../aistats2026
+report_dir: sync-report
+
+# Interactive / transactional surfaces: link only (never body-import).
+link_only:
+  - path: /virtual/2026/calendar
+    note: Full interactive calendar
+  - path: /virtual/2026/papers
+    note: Paper browser
+  - path: registration portal
+    note: Checkout / booking — keep as link from registration.md
+
+pages:
+  - id: call-for-papers
+    url: /Conferences/2026/CallForPapers
+    out: call-for-papers.md
+    extract: main_after_nav
+    required: true
+    on_drift: report
+    front_matter:
+      title: Call for Papers
+      layout: default
+      weight: 2
+      hide: false
+
+  - id: code-of-conduct
+    url: /Conferences/2026/CodeOfConduct
+    out: code-of-conduct.md
+    extract: main_after_nav
+    required: true
+    on_drift: report
+    front_matter:
+      title: Code of Conduct
+      layout: default
+
+  - id: faqs
+    url: /Conferences/2026/SubmissionFAQ
+    out: faqs.md
+    extract: main_after_nav
+    required: true
+    on_drift: report
+    front_matter:
+      title: FAQs
+      layout: default
+
+  - id: camera
+    url: /Conferences/2026/CameraReadyInstructions
+    out: camera.md
+    extract: main_after_nav
+    required: true
+    on_drift: report
+    front_matter:
+      title: Camera-Ready Instructions
+      layout: default
+
+  - id: poster
+    url: /FAQ/PostersInstructions
+    out: poster.md
+    extract: main_after_nav
+    required: true
+    on_drift: report
+    front_matter:
+      title: Poster Instructions
+      layout: default
+
+  - id: reviewer-guidelines
+    url: /Conferences/2026/ReviewerGuidelines
+    out: reviewer_guidelines.md
+    extract: main_after_nav
+    required: true
+    on_drift: report
+    front_matter:
+      title: Reviewer Guidelines
+      layout: default
+
+  - id: ac-guidelines
+    url: /Conferences/2026/ACGuidelines
+    out: ac_guidelines.md
+    extract: main_after_nav
+    required: true
+    on_drift: report
+    front_matter:
+      title: Area Chair Guidelines
+      layout: default
+
+  - id: journal-track
+    url: /Conferences/2026/CallForJournalTrack
+    out: journal-track.md
+    extract: main_after_nav
+    required: true
+    on_drift: report
+    front_matter:
+      title: Journal Track
+      layout: default
+
+  - id: workshops
+    url: /Conferences/2026/CallForWorkshops
+    out: workshops.md
+    extract: main_after_nav
+    required: true
+    on_drift: report
+    front_matter:
+      title: Workshops
+      layout: default
+
+  - id: accommodation
+    url: /Conferences/2026/Hotels
+    out: accommodation.md
+    extract: hotels_venue
+    required: true
+    on_drift: report
+    front_matter:
+      title: Accommodation
+      layout: default
+
+  - id: visa
+    url: /Conferences/2026/VisaTravelInformation
+    out: visa.md
+    extract: main_after_nav
+    required: true
+    on_drift: report
+    front_matter:
+      title: Visa and Travel
+      layout: default
+
+  - id: invited
+    url: /virtual/2026/eventlistwithbios/Invited%20Talk
+    out: invited.md
+    extract: event_bios
+    assets: speaker_images
+    required: true
+    on_drift: report
+    front_matter:
+      title: Invited Speakers
+      layout: default
+
+  - id: awards
+    url: /virtual/2026/eventlistwithbios/Award
+    out: awards.md
+    extract: event_bios
+    assets: speaker_images
+    required: true
+    on_drift: report
+    front_matter:
+      title: Awards
+      layout: default
+
+  - id: registration
+    url: /Conferences/2026/Dates
+    out: registration.md
+    extract: registration_blocks
+    required: true
+    on_drift: report
+    front_matter:
+      title: Registration
+      layout: default
+
+  - id: schedule
+    url: /Conferences/2026/Dates
+    out: schedule.md
+    extract: schedule_summary
+    required: true
+    on_drift: report
+    front_matter:
+      title: Schedule
+      layout: default
+
+  # Prose on dates.md is usually stub/include-driven; virtual Dates feed YAML.
+  - id: dates
+    url: /Conferences/2026/Dates
+    out: dates.md
+    extract: dates_tables
+    required: true
+    on_drift: prefer_year
+    front_matter:
+      title: Important Dates
+      layout: default
+
+  - id: config-dates-venue
+    url: /Conferences/2026/Dates
+    out: _config.yml
+    extract: config_merge
+    required: true
+    on_drift: report
+
+  - id: index
+    url: /
+    out: index.md
+    extract: home_announcements
+    required: false
+    on_drift: prefer_year
+    include: index
+    front_matter:
+      title: AISTATS 2026
+      layout: default

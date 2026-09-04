@@ -1,7 +1,7 @@
 ---
 id: "2026-09-04_cip0004-config-yaml-patch"
 title: "CIP-0004: Reviewable deadline and venue YAML patches"
-status: "Ready"
+status: "Completed"
 priority: "Medium"
 created: "2026-09-04"
 last_updated: "2026-09-04"
@@ -24,11 +24,11 @@ Parse virtual Dates (and Hotels where useful) into proposed patches for `confere
 
 ## Acceptance Criteria
 
-- [ ] Dates tables → structured deadline candidates aligned with stub `_config.yml` deadline fields
-- [ ] Venue/location fields proposed from Hotels / conference header where available
-- [ ] Default output is a patch or side-by-side proposal, not an in-place overwrite
-- [ ] Chairs and unrelated keys left untouched
-- [ ] Explicit apply path documented (flag or separate subcommand)
+- [x] Dates tables → structured deadline candidates aligned with stub `_config.yml` deadline fields
+- [x] Venue/location fields proposed from Hotels / conference header where available
+- [x] Default output is a patch or side-by-side proposal, not an in-place overwrite
+- [x] Chairs and unrelated keys left untouched
+- [x] Explicit apply path documented (flag or separate subcommand)
 
 ## Implementation Notes
 
@@ -43,3 +43,7 @@ Separate from pandoc prose path. Prefer merging known keys only.
 ### 2026-09-04
 
 Task created at Ready after CIP-0004 acceptance.
+
+### 2026-09-04 (later)
+
+Completed: `config_patch.py`; sync writes `proposed-config-patch.{md,yaml}`; `--apply-config-patch` merges venue/deadlines only.

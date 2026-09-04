@@ -1,7 +1,7 @@
 ---
 id: "2026-09-04_cip0004-convert-pipeline"
 title: "CIP-0004: Fetch, extract, pandoc, and post-process pipeline"
-status: "Ready"
+status: "Completed"
 priority: "High"
 created: "2026-09-04"
 last_updated: "2026-09-04"
@@ -24,11 +24,11 @@ Implement the conversion half of `sync-virtual`: fetch virtual HTML (or load fix
 
 ## Acceptance Criteria
 
-- [ ] CLI or library entrypoint can convert a mapped page id to candidate markdown
-- [ ] Chrome (nav/footer/cookies) stripped via configured extract strategy
-- [ ] Pandoc used for HTML→markdown; clear error if pandoc missing
-- [ ] Front matter from manifest applied without altering converted body prose
-- [ ] Offline fixture replay supported for at least one page
+- [x] CLI or library entrypoint can convert a mapped page id to candidate markdown
+- [x] Chrome (nav/footer/cookies) stripped via configured extract strategy
+- [x] Pandoc used for HTML→markdown; clear error if pandoc missing
+- [x] Front matter from manifest applied without altering converted body prose
+- [x] Offline fixture replay supported for at least one page
 
 ## Implementation Notes
 
@@ -43,3 +43,7 @@ Preserve wording; no paraphrase. Image fetch for invited speakers can be stubbed
 ### 2026-09-04
 
 Task created at Ready after CIP-0004 acceptance.
+
+### 2026-09-04 (later)
+
+Completed: `convert.py` + `convert` CLI subcommand; fixture `fixtures/call-for-papers.html`.
