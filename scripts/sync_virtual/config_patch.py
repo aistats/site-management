@@ -44,7 +44,6 @@ DEADLINE_APPLY_TARGETS: Dict[str, List[Dict[str, str]]] = {
         {"name": "Author response period", "field": "enddate", "from": "enddate"},
         {"name": "Author response period starts", "field": "date", "from": "date"},
         {"name": "Author response period ends", "field": "date", "from": "enddate"},
-        {"name": "Author response period ends", "field": "time", "from": "enddate"},
         {"name": "Author rebuttal period", "field": "date", "from": "date"},
         {"name": "Author rebuttal period", "field": "enddate", "from": "enddate"},
         {"name": "Author-reviewer discussion period", "field": "date", "from": "date"},
@@ -58,7 +57,6 @@ DEADLINE_APPLY_TARGETS: Dict[str, List[Dict[str, str]]] = {
     "Camera-ready deadline": [
         {"name": "Camera-ready deadline", "field": "date", "from": "date"},
         {"name": "Deadline for camera-ready papers", "field": "date", "from": "date"},
-        {"name": "Deadline for camera-ready papers", "field": "time", "from": "date"},
         {"name": "Camera-Ready revision due", "field": "date", "from": "date"},
     ],
     "Journal-to-Conference track deadline": [
@@ -326,6 +324,9 @@ def _set_deadline_field(text: str, deadline_name: str, field: str, value: str) -
     """
     Within the first deadlines list item whose name matches, set `field:`.
     If the field line is missing, insert it after the name line.
+
+    Never invent a `time:` line from a date/enddate value — only update `time`
+    when that key already exists on the deadline item.
     """
     name_re = re.compile(
         rf"(^([ \t]*)- name:[ \t]*{re.escape(deadline_name)}[ \t]*\n)"
@@ -342,6 +343,9 @@ def _set_deadline_field(text: str, deadline_name: str, field: str, value: str) -
     field_re = re.compile(rf"^([ \t]*{re.escape(field)}:)[ \t]*.*$", re.MULTILINE)
     if field_re.search(block):
         new_block = field_re.sub(rf"\1 {value}", block, count=1)
+    elif field == "time":
+        # Do not create time: from calendar deadline strings.
+        return text, False
     else:
         new_block = f"{indent}{field}: {value}\n" + block
     start, end = match.span()
