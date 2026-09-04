@@ -1,7 +1,7 @@
 ---
 id: "2026-09-04_cip0004-site-contract-ci"
 title: "CIP-0004: Stub year-site contract checks and PR CI"
-status: "Ready"
+status: "Completed"
 priority: "Medium"
 created: "2026-09-04"
 last_updated: "2026-09-04"
@@ -31,16 +31,16 @@ Extends the spirit of the completed CIP-0001 stub smoke checklist (`2026-09-02_s
 
 ## Acceptance Criteria
 
-- [ ] `stub/scripts/check_year_site.py` (or equivalent) implements at least:
+- [x] `stub/scripts/check_year_site.py` (or equivalent) implements at least:
   - Required archival page paths present (aligned with stub / CIP-0004 manifest inventory)
   - Forbidden chrome markers absent in `*.md` (`child-menu`, `Select Year:`, and similar)
   - `_config.yml`: `conference.year` consistent with dated `conference.dates` entries when both present
   - Exit non-zero on failure with clear messages
-- [ ] Stub mode: placeholder/year-city pollution checks retained or ported from CIP-0001 smoke intent
-- [ ] GitHub Action workflow in `stub` runs the contract script on PRs (optional `jekyll build` as a separate job or flag)
-- [ ] Same checker runnable in `aistats2026` (copied script and/or workflow) so PR #1 / sync branches get a red/green signal
-- [ ] Short note in stub `_doc/` pointing at how year sites enable the check
-- [ ] Document that Tier C faithfulness remains in `site-management` (link to `scripts/sync_virtual/`)
+- [x] Stub mode: placeholder/year-city pollution checks retained or ported from CIP-0001 smoke intent
+- [x] GitHub Action workflow in `stub` runs the contract script on PRs (optional `jekyll build` as a separate job or flag)
+- [x] Same checker runnable in `aistats2026` (copied script and/or workflow) so PR #1 / sync branches get a red/green signal
+- [x] Short note in stub `_doc/` pointing at how year sites enable the check
+- [x] Document that Tier C faithfulness remains in `site-management` (link to `scripts/sync_virtual/`)
 
 ## Implementation Notes
 
@@ -59,3 +59,7 @@ Suggested follow-ups (out of scope here unless trivial): optional Jekyll build j
 ### 2026-09-04
 
 Task created at Ready after dual-base sync probes and extract-chrome fix; Tier A CI agreed before PR update.
+
+### 2026-09-04 (later)
+
+Completed: `stub/scripts/check_year_site.py`, workflow, `_doc/site-contract.md`; copied onto `aistats2026` branch `cip0004-site-contract`.
