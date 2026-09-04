@@ -224,7 +224,15 @@ conference:
         self.assertIn("Paper submission deadline", updated)
         self.assertRegex(
             updated,
-            r"Paper submission deadline\n\s+date:\s+Oct",
+            r"Paper submission deadline\n\s+(?:date|time):\s+Oct",
+        )
+        self.assertRegex(
+            updated,
+            r"Author response period ends\n\s+time:\s+Dec",
+        )
+        self.assertRegex(
+            updated,
+            r"Deadline for camera-ready papers\n\s+time:\s+Mar",
         )
         self.assertTrue(any("venue" in line for line in log))
 

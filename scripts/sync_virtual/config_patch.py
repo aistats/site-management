@@ -387,7 +387,10 @@ def apply_proposal_to_config_text(text: str, proposal: ConfigProposal) -> Tuple[
                 updated, target["name"], target["field"], str(value)
             )
             if ok:
-                log.append(f"{target['name']}.{target['field']} ← {canonical}.{source_key}")
+                # Field may remap date→time for 2026-shaped items; log intent + name.
+                log.append(
+                    f"{target['name']}.{target['field']} ← {canonical}.{source_key}"
+                )
     return updated, log
 
 
