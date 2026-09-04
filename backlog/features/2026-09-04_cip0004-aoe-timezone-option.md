@@ -1,7 +1,7 @@
 ---
 id: "2026-09-04_cip0004-aoe-timezone-option"
 title: "CIP-0004: Optional AoE timezone rendering in listdates"
-status: "Ready"
+status: "Completed"
 priority: "Low"
 created: "2026-09-04"
 last_updated: "2026-09-04"
@@ -26,14 +26,14 @@ Today `listdates.html` assumes all deadlines are Anywhere on Earth and says so i
 
 ## Acceptance Criteria
 
-- [ ] Documented config shape for site-level and optional per-deadline timezone
-- [ ] `listdates.html` (stub and/or `jekyll-theme`) renders AoE vs timed zones without free-text date strings
-- [ ] Existing year sites that rely on the global AoE blurb keep working with defaults
-- [ ] Sync config apply continues to write parseable dates only
+- [x] Documented config shape for site-level and optional per-deadline timezone
+- [x] `listdates.html` (stub and/or `jekyll-theme`) renders AoE vs timed zones without free-text date strings
+- [x] Existing year sites that rely on the global AoE blurb keep working with defaults
+- [x] Sync config apply continues to write parseable dates only
 
 ## Implementation Notes
 
-Likely lands in `aistats/jekyll-theme` and/or stub `_includes/listdates.html`. Keep CIP-0004 sync out of the theme change except for not writing AOE into values.
+Canonical include: `jekyll-theme/_includes/listdates.html` (also copied to stub and aistats2026 local overrides). Theme `listdeadlines.html` updated for the same `tz` contract. Stub `_config.yml` defaults `timezone: AOE`.
 
 ## Related
 
@@ -45,3 +45,7 @@ Likely lands in `aistats/jekyll-theme` and/or stub `_includes/listdates.html`. K
 ### 2026-09-04
 
 Task created at Ready; deferred until PR content uses parseable dates.
+
+### 2026-09-04 (later)
+
+Implemented in jekyll-theme, stub, and aistats2026.
