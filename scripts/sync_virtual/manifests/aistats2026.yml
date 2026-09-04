@@ -138,13 +138,15 @@ pages:
       title: Invited Speakers
       layout: default
 
+  # Virtual Award event list is paper abstracts/cards, not award announcement
+  # prose. Prefer year-site awards.md; do not apply event_bios over it.
   - id: awards
     url: /virtual/2026/eventlistwithbios/Award
     out: awards.md
     extract: event_bios
     assets: speaker_images
     required: true
-    on_drift: report
+    on_drift: prefer_year
     front_matter:
       title: Awards
       layout: default

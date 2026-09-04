@@ -79,6 +79,11 @@ def apply_from_report(
             continue
 
         if apply_from_virtual and only_ids is not None and page.id in only_ids:
+            if page.on_drift == "prefer_year":
+                result.skipped.append(
+                    f"{page.id}: on_drift=prefer_year; refusing apply-from-virtual"
+                )
+                continue
             if item.classification == "missing":
                 # Allow apply to create as well when explicitly listed.
                 candidate = item.candidate

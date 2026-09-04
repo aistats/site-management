@@ -59,14 +59,16 @@ Each `pages[]` entry:
 | Name | Intent |
 |------|--------|
 | `main_after_nav` | Keep the primary article body after stripping nav, year switcher, empty Bootstrap shells |
-| `event_bios` | Invited/award event cards: titles, bios, images; drop badges/bookmarks |
+| `event_bios` | Invited Talk event cards: titles, bios, images; drop badges/bookmarks. **Not** for awards announcement prose — the Award event list is paper abstracts; keep `awards.md` as `prefer_year` |
 | `dates_tables` | Paper/workshop/journal (+ main conference) deadline tables from Dates |
 | `hotels_venue` | Hotels / venue prose after chrome strip |
 | `registration_blocks` | Registration note + meeting dates + Attendees deadline rows (not full Dates dump) |
 | `schedule_summary` | Meeting dates + main conference start + calendar link |
-| `home_announcements` | Selective home/index announcement blocks; high clobber risk — gated |
+| `home_announcements` | Selective home/index announcement blocks; high clobber risk — gated (`prefer_year`; apply refused) |
 | `config_merge` | Structured fields only (deadlines, venue); no pandoc body ownership |
 | `none` | No fetch/convert (year-only placeholder row for reporting) |
+
+`on_drift: prefer_year` pages are never overwritten by `--apply-from-virtual` (apply skips them). Use report/drift diffs and virtual-update-request instead.
 
 ## Default inventories
 

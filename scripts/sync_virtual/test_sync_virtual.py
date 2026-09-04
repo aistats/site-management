@@ -135,6 +135,47 @@ class SyncVirtualTests(unittest.TestCase):
             self.assertTrue((target / "call-for-papers.md").is_file())
             self.assertTrue(filled.written)
 
+    def test_prefer_year_refuses_apply_from_virtual(self) -> None:
+        from sync_virtual.compare import PageComparison, SyncReport
+        from sync_virtual.convert import ConvertResult
+
+        with tempfile.TemporaryDirectory() as tmp:
+            target = Path(tmp)
+            awards = target / "awards.md"
+            awards.write_text(
+                "---\ntitle: Awards\nlayout: default\n---\n\n## Best Paper\n\nKeep me.\n",
+                encoding="utf-8",
+            )
+            page = self.manifest.page_by_id("awards")
+            self.assertEqual(page.on_drift, "prefer_year")
+            candidate = ConvertResult(
+                page_id=page.id,
+                source_url=page.url or "",
+                html_path=None,
+                fragment_html="",
+                body_markdown="### Abstract card only\n",
+                full_markdown="---\ntitle: Awards\nlayout: default\n---\n\n### Abstract card only\n",
+            )
+            report = SyncReport(
+                manifest=self.manifest,
+                comparisons=[
+                    PageComparison(
+                        page=page,
+                        classification="drift",
+                        year_path=awards,
+                        candidate=candidate,
+                        year_body="## Best Paper\n\nKeep me.\n",
+                        candidate_body="### Abstract card only\n",
+                    )
+                ],
+            )
+            result = apply_from_report(
+                report, target, apply_from_virtual=True, only=["awards"]
+            )
+            self.assertFalse(result.written)
+            self.assertTrue(any("prefer_year" in s for s in result.skipped))
+            self.assertIn("## Best Paper", awards.read_text(encoding="utf-8"))
+
     def test_report_artefacts(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             target = Path(tmp)
