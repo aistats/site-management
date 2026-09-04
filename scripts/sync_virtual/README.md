@@ -47,7 +47,7 @@ Each `pages[]` entry:
 | `out` | yes | Relative path in the year repo (`call-for-papers.md`, `_config.yml`, …) |
 | `extract` | yes | Named extract strategy (see below) |
 | `required` | no | If true (default false), always appear in the sync report |
-| `on_drift` | no | `report` (default) \| `prefer_year` \| `prefer_virtual` — classification preference only; apply still needs CLI flags |
+| `on_drift` | no | `report` (default) \| `prefer_year` \| `prefer_virtual`. `prefer_year` also blocks `--apply-from-virtual` writes |
 | `front_matter` | no | Jekyll front matter map injected on convert / apply |
 | `assets` | no | Asset policy name (`speaker_images`, …) or omit |
 | `include` | no | Extra flags (`index` needs `--include-index` to convert) |

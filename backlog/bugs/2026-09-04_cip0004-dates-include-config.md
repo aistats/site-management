@@ -37,14 +37,12 @@ AoE is already stated once in `listdates.html`. Do not embed “Anywhere on Eart
 - [x] Registration and schedule pages do not paste virtual meeting-date tables; they summarise from config and link out for interactive detail
 - [x] `_config.yml` deadlines are parseable by Jekyll `date` filters; no AOE suffix in values
 - [x] Home / CFP lead-in use `site.conference.location` (and dates/venue) rather than hard-coded “Morocco” only
-- [ ] Sync tooling backlog note: `dates` / key-dates extracts stay `prefer_year` or post-process to include (follow-up in sync_virtual)
+- [x] Sync tooling backlog note: `dates` / key-dates extracts stay `prefer_year` or post-process to include (follow-up in sync_virtual)
 - [x] PR #1 content updated
 
 ## Implementation Notes
 
-Content fix lands on `aistats2026` `sync-from-virtual`. Sync pipeline changes (normalise virtual date strings before config apply; never overwrite dates.md body when prefer_year) can be a follow-on commit in site-management.
-
-Theme support for per-deadline or site-level `timezone: AOE` vs UTC is a separate task (`2026-09-04_cip0004-aoe-timezone-option`).
+Content fix lands on `aistats2026` `sync-from-virtual`. Sync pipeline: `dates` (and `awards`, `index`) use `on_drift: prefer_year`; `--apply-from-virtual` refuses those pages. Optional AoE timezone option in listdates is `2026-09-04_cip0004-aoe-timezone-option`.
 
 ## Related
 
@@ -61,3 +59,7 @@ Task created after PR review of faithful sync dump.
 ### 2026-09-04 (later)
 
 Patched PR content on `sync-from-virtual`. Sync_virtual normalise/prefer_year follow-up left open.
+
+### 2026-09-04 (evening)
+
+Closed prefer_year follow-up: dates/awards/index marked prefer_year; apply refuses overwrite.
