@@ -16,10 +16,8 @@ if str(SCRIPTS_DIR) not in sys.path:
 from sync_virtual.apply import apply_from_report  # noqa: E402
 from sync_virtual.compare import run_compare, write_report_artefacts  # noqa: E402
 from sync_virtual.config_patch import (  # noqa: E402
-    apply_proposal_to_config,
-    dump_config_yaml,
+    apply_proposal_to_config_file,
     proposal_from_manifest,
-    read_config_yaml,
     write_proposal_artefacts,
 )
 from sync_virtual.convert import PandocMissingError, convert_page  # noqa: E402
@@ -138,14 +136,19 @@ def cmd_sync(args: argparse.Namespace) -> int:
         if not config_path.is_file():
             print(f"error: missing {config_path}", file=sys.stderr)
             return 1
-        current = read_config_yaml(config_path)
-        chairs_before = current.get("conference", {}).get("chairs")
-        updated = apply_proposal_to_config(current, proposal)
-        if updated.get("conference", {}).get("chairs") != chairs_before:
-            print("error: refuse to modify chairs", file=sys.stderr)
+        before = config_path.read_text(encoding="utf-8")
+        try:
+            log = apply_proposal_to_config_file(config_path, proposal)
+        except RuntimeError as exc:
+            print(f"error: {exc}", file=sys.stderr)
             return 1
-        config_path.write_text(dump_config_yaml(updated), encoding="utf-8")
-        print(f"WROTE {config_path} (config patch)")
+        after = config_path.read_text(encoding="utf-8")
+        if before == after:
+            print("Config patch: no textual changes (aliases may not match deadline names)")
+        else:
+            print(f"WROTE {config_path} (surgical config patch)")
+        for line in log:
+            print(f"  config: {line}")
 
     apply_result = apply_from_report(
         report,

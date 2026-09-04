@@ -1,4 +1,4 @@
-"""Propose reviewable _config.yml patches from virtual Dates / Hotels HTML."""
+"""Propose and surgically apply `_config.yml` patches from virtual Dates / Hotels."""
 
 from __future__ import annotations
 
@@ -12,11 +12,12 @@ import yaml
 from .convert import fetch_html, load_html
 from .manifest import Manifest, PageSpec
 
-# Map virtual Dates row names → stub deadline `name` values (and optional type hints).
+# Virtual Dates row label → canonical proposal key.
 DEADLINE_NAME_MAP = {
     "abstract submission deadline": "Abstract submission deadline",
     "full paper submission deadline": "Paper submission deadline",
     "paper submission deadline": "Paper submission deadline",
+    "author rebuttal period begins": "Author response period",
     "author reviewer discussion period begins": "Author response period",
     "author reviewer discussion period ends": "Author response period",
     "paper decision notifications": "Paper decision notifications",
@@ -25,6 +26,55 @@ DEADLINE_NAME_MAP = {
     "journal to conference submission deadline": "Journal-to-Conference track deadline",
     "workshop submission deadline": "Workshop submission deadline",
     "main conference begins": "Conference dates",
+    "registration opens": "Registration deadline",
+    "early pricing before this date.": "Registration deadline",
+}
+
+# Canonical proposal key → year-site deadline name(s) and which proposal field to write.
+# Multiple targets allow stub-shaped and 2026-shaped `_config.yml` variants.
+DEADLINE_APPLY_TARGETS: Dict[str, List[Dict[str, str]]] = {
+    "Abstract submission deadline": [
+        {"name": "Abstract submission deadline", "field": "date", "from": "date"},
+    ],
+    "Paper submission deadline": [
+        {"name": "Paper submission deadline", "field": "date", "from": "date"},
+    ],
+    "Author response period": [
+        {"name": "Author response period", "field": "date", "from": "date"},
+        {"name": "Author response period", "field": "enddate", "from": "enddate"},
+        {"name": "Author response period starts", "field": "date", "from": "date"},
+        {"name": "Author response period ends", "field": "date", "from": "enddate"},
+        {"name": "Author response period ends", "field": "time", "from": "enddate"},
+        {"name": "Author rebuttal period", "field": "date", "from": "date"},
+        {"name": "Author rebuttal period", "field": "enddate", "from": "enddate"},
+        {"name": "Author-reviewer discussion period", "field": "date", "from": "date"},
+        {"name": "Author-reviewer discussion period", "field": "enddate", "from": "enddate"},
+        {"name": "Author-Reviewer discussion period", "field": "date", "from": "date"},
+        {"name": "Author-Reviewer discussion period", "field": "enddate", "from": "enddate"},
+    ],
+    "Paper decision notifications": [
+        {"name": "Paper decision notifications", "field": "date", "from": "date"},
+    ],
+    "Camera-ready deadline": [
+        {"name": "Camera-ready deadline", "field": "date", "from": "date"},
+        {"name": "Deadline for camera-ready papers", "field": "date", "from": "date"},
+        {"name": "Deadline for camera-ready papers", "field": "time", "from": "date"},
+        {"name": "Camera-Ready revision due", "field": "date", "from": "date"},
+    ],
+    "Journal-to-Conference track deadline": [
+        {"name": "Journal-to-Conference track deadline", "field": "date", "from": "date"},
+        {"name": "Journal-to-Conference Track Request due", "field": "date", "from": "date"},
+    ],
+    "Workshop submission deadline": [
+        {"name": "Workshop submission deadline", "field": "date", "from": "date"},
+    ],
+    "Conference dates": [
+        {"name": "Conference dates", "field": "date", "from": "date"},
+        {"name": "Conference dates", "field": "enddate", "from": "enddate"},
+    ],
+    "Registration deadline": [
+        {"name": "Registration deadline", "field": "date", "from": "date"},
+    ],
 }
 
 VENUE_RE = re.compile(
@@ -70,13 +120,26 @@ def parse_dates_rows(html: str) -> List[Tuple[str, str]]:
             cells = [c for c in cells if c]
             if len(cells) < 2:
                 continue
-            # Typical: Name, Date, Countdown…
             name, date_text = cells[0], cells[1]
-            if name.lower() in {"name", "attendees", "main conference", "paper submissions", "workshops"}:
+            if name.lower() in {
+                "name",
+                "attendees",
+                "main conference",
+                "paper submissions",
+                "workshops",
+                "journal-to-conference",
+            }:
                 continue
-            if "deadline" in name.lower() or "period" in name.lower() or "notification" in name.lower() or "begins" in name.lower() or "opens" in name.lower():
+            if (
+                "deadline" in name.lower()
+                or "period" in name.lower()
+                or "notification" in name.lower()
+                or "begins" in name.lower()
+                or "opens" in name.lower()
+                or "pricing" in name.lower()
+            ):
                 rows.append((name, date_text))
-            elif len(cells) >= 2 and re.search(r"\d", date_text):
+            elif re.search(r"\d", date_text):
                 rows.append((name, date_text))
     return rows
 
@@ -122,8 +185,18 @@ def build_config_proposal(
                 proposal.notes.append(f"Unmapped dates row: {name} → {date_text}")
                 continue
             entry = proposal.deadlines.setdefault(key, {})
-            # First mapped start date wins; ends fill enddate when same key seen again.
-            if "date" not in entry:
+            lname = name.lower()
+            if key == "Author response period":
+                if "ends" in lname:
+                    entry["enddate"] = date_text
+                    entry["source_name_end"] = name
+                elif "discussion" in lname and "begins" in lname:
+                    entry["date"] = date_text
+                    entry["source_name"] = name
+                elif "date" not in entry:
+                    entry["date"] = date_text
+                    entry["source_name"] = name
+            elif "date" not in entry:
                 entry["date"] = date_text
                 entry["source_name"] = name
             else:
@@ -203,6 +276,7 @@ def render_proposal_markdown(proposal: ConfigProposal) -> str:
         "# Proposed `_config.yml` patches",
         "",
         "Reviewable only — not applied unless `--apply-config-patch` is set.",
+        "Apply uses a surgical text merge (comments preserved).",
         "",
         "## Venue",
         "",
@@ -240,13 +314,90 @@ def write_proposal_artefacts(proposal: ConfigProposal, out_dir: Path) -> Dict[st
     return {"yaml": yaml_path, "markdown": md_path}
 
 
+def _replace_conference_scalar(text: str, key: str, value: str) -> str:
+    """Replace `  key:` (conference-level indent) value; preserve surrounding comments."""
+    pattern = re.compile(rf"^(  {re.escape(key)}:)[ \t]*.*$", re.MULTILINE)
+    if not pattern.search(text):
+        return text
+    return pattern.sub(rf"\1 {value}", text, count=1)
+
+
+def _set_deadline_field(text: str, deadline_name: str, field: str, value: str) -> Tuple[str, bool]:
+    """
+    Within the first deadlines list item whose name matches, set `field:`.
+    If the field line is missing, insert it after the name line.
+    """
+    name_re = re.compile(
+        rf"(^([ \t]*)- name:[ \t]*{re.escape(deadline_name)}[ \t]*\n)"
+        rf"((?:^(?![ \t]*- name:)[ \t]+.*\n)*)",
+        re.MULTILINE,
+    )
+    match = name_re.search(text)
+    if not match:
+        return text, False
+
+    prefix = match.group(1)
+    indent = match.group(2) + "  "
+    block = match.group(3)
+    field_re = re.compile(rf"^([ \t]*{re.escape(field)}:)[ \t]*.*$", re.MULTILINE)
+    if field_re.search(block):
+        new_block = field_re.sub(rf"\1 {value}", block, count=1)
+    else:
+        new_block = f"{indent}{field}: {value}\n" + block
+    start, end = match.span()
+    return text[:start] + prefix + new_block + text[end:], True
+
+
+def apply_proposal_to_config_text(text: str, proposal: ConfigProposal) -> Tuple[str, List[str]]:
+    """
+    Surgically merge venue/location/deadline fields into config text.
+    Preserves comments and unrelated keys. Returns (new_text, log_lines).
+    """
+    log: List[str] = []
+    updated = text
+    if proposal.venue:
+        before = updated
+        updated = _replace_conference_scalar(updated, "venue", proposal.venue)
+        if updated != before:
+            log.append(f"venue → {proposal.venue}")
+    if proposal.location:
+        before = updated
+        updated = _replace_conference_scalar(updated, "location", proposal.location)
+        if updated != before:
+            log.append(f"location → {proposal.location}")
+
+    for canonical, entry in proposal.deadlines.items():
+        targets = DEADLINE_APPLY_TARGETS.get(canonical, [])
+        for target in targets:
+            source_key = target.get("from", "date")
+            value = entry.get(source_key)
+            if not value:
+                continue
+            updated, ok = _set_deadline_field(
+                updated, target["name"], target["field"], str(value)
+            )
+            if ok:
+                log.append(f"{target['name']}.{target['field']} ← {canonical}.{source_key}")
+    return updated, log
+
+
+def apply_proposal_to_config_file(path: Path, proposal: ConfigProposal) -> List[str]:
+    """Apply surgical merge in place. Returns log of fields written."""
+    original = path.read_text(encoding="utf-8")
+    updated, log = apply_proposal_to_config_text(original, proposal)
+    if updated == original:
+        return log
+    path.write_text(updated, encoding="utf-8")
+    return log
+
+
 def apply_proposal_to_config(
     config: Dict[str, Any],
     proposal: ConfigProposal,
 ) -> Dict[str, Any]:
     """
-    Return a shallow-copied config with only known conference keys merged.
-    Chairs and unrelated keys are left untouched.
+    In-memory merge for tests / inspection. Prefer apply_proposal_to_config_file
+    for real year-site writes (comment-preserving).
     """
     import copy
 
@@ -262,19 +413,15 @@ def apply_proposal_to_config(
 
     deadlines = conference.get("deadlines")
     if isinstance(deadlines, list) and proposal.deadlines:
-        for item in deadlines:
-            if not isinstance(item, dict):
-                continue
-            name = item.get("name")
-            if name not in proposal.deadlines:
-                continue
-            mapped = proposal.deadlines[name]
-            if mapped.get("date"):
-                item["date"] = mapped["date"]
-            if mapped.get("enddate"):
-                item["enddate"] = mapped["enddate"]
+        by_name = {
+            item.get("name"): item for item in deadlines if isinstance(item, dict)
+        }
+        for canonical, entry in proposal.deadlines.items():
+            for target in DEADLINE_APPLY_TARGETS.get(canonical, []):
+                item = by_name.get(target["name"])
+                if not item:
+                    continue
+                value = entry.get(target.get("from", "date"))
+                if value:
+                    item[target["field"]] = value
     return updated
-
-
-def dump_config_yaml(data: Dict[str, Any]) -> str:
-    return yaml.safe_dump(data, sort_keys=False, allow_unicode=True)

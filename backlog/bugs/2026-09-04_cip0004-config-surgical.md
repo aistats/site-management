@@ -1,7 +1,7 @@
 ---
 id: "2026-09-04_cip0004-config-surgical"
 title: "CIP-0004: Surgical _config.yml merge and deadline name aliases"
-status: "Ready"
+status: "Completed"
 priority: "High"
 created: "2026-09-04"
 last_updated: "2026-09-04"
@@ -26,12 +26,12 @@ Replace full dump with an in-place surgical merge (venue, location, matched dead
 
 ## Acceptance Criteria
 
-- [ ] Applying a config patch leaves comments and unrelated keys byte-stable aside from intentional field updates
-- [ ] Chairs (and other non-target keys) remain unchanged (regression test)
-- [ ] Alias map covers at least: abstract/paper submission, author response start/end, decisions, camera-ready, journal-track, workshops, conference dates
-- [ ] 2026 `_config.yml` labels such as `Deadline for camera-ready papers` and split author-response rows can receive dates
-- [ ] Default remains proposal-only; `--apply-config-patch` still required to write
-- [ ] Unit test: round-trip fixture config with comments survives apply
+- [x] Applying a config patch leaves comments and unrelated keys byte-stable aside from intentional field updates
+- [x] Chairs (and other non-target keys) remain unchanged (regression test)
+- [x] Alias map covers at least: abstract/paper submission, author response start/end, decisions, camera-ready, journal-track, workshops, conference dates
+- [x] 2026 `_config.yml` labels such as `Deadline for camera-ready papers` and split author-response rows can receive dates
+- [x] Default remains proposal-only; `--apply-config-patch` still required to write
+- [x] Unit test: round-trip fixture config with comments survives apply
 
 ## Implementation Notes
 
@@ -49,3 +49,7 @@ Do not auto-fix `conference.dates` year typos unless mapped from virtual meeting
 ### 2026-09-04
 
 Task created from config-apply probe failure (Ready for review before implementation).
+
+### 2026-09-04 (later)
+
+Completed: `apply_proposal_to_config_text` / `_file`, `DEADLINE_APPLY_TARGETS` aliases, unit test for comment preservation.

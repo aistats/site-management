@@ -98,3 +98,7 @@ Use the VibeSafe venv (PyYAML + BeautifulSoup):
 ```
 
 Year override: `aistats20XX/virtual-sync.yml` (full replacement when `--with-year-override`).
+
+## Config patches
+
+`--apply-config-patch` uses a **surgical text merge**: only `venue`, `location`, and matched deadline `date`/`enddate`/`time` lines change. Comments and chairs are preserved. Deadline name aliases cover stub-shaped and 2026-shaped labels (see `DEADLINE_APPLY_TARGETS` in `config_patch.py`).

@@ -169,6 +169,9 @@ class SyncVirtualTests(unittest.TestCase):
                 "deadlines": [
                     {"name": "Abstract submission deadline", "date": ""},
                     {"name": "Paper submission deadline", "date": ""},
+                    {"name": "Deadline for camera-ready papers", "date": ""},
+                    {"name": "Author response period starts", "date": ""},
+                    {"name": "Author response period ends", "date": ""},
                 ],
             }
         }
@@ -178,6 +181,52 @@ class SyncVirtualTests(unittest.TestCase):
             config["conference"]["chairs"],
         )
         self.assertTrue(updated["conference"]["deadlines"][0]["date"])
+        self.assertTrue(updated["conference"]["deadlines"][2]["date"])
+
+    def test_surgical_config_preserves_comments(self) -> None:
+        from sync_virtual.config_patch import apply_proposal_to_config_text
+
+        original = """# Site settings
+title: Test
+conference:
+  # venue comment
+  venue:
+  location: Morocco
+  # chairs must stay
+  chairs:
+  - type: General Chairs
+    people:
+    - family: Li
+      given: Yingzhen
+  deadlines:
+    - name: Paper submission deadline
+      type: submission
+      time:
+    - name: Author response period starts
+      date:
+    - name: Author response period ends
+      time:
+    - name: Deadline for camera-ready papers
+      time:
+"""
+        proposal = build_config_proposal(
+            dates_html=(FIXTURES / "dates.html").read_text(encoding="utf-8"),
+            hotels_html=(FIXTURES / "accommodation.html").read_text(encoding="utf-8"),
+        )
+        updated, log = apply_proposal_to_config_text(original, proposal)
+        self.assertIn("# Site settings", updated)
+        self.assertIn("# venue comment", updated)
+        self.assertIn("# chairs must stay", updated)
+        self.assertIn("family: Li", updated)
+        self.assertIn("given: Yingzhen", updated)
+        self.assertIn("Hilton Tangier", updated)
+        self.assertIn("Tangier, Morocco", updated)
+        self.assertIn("Paper submission deadline", updated)
+        self.assertRegex(
+            updated,
+            r"Paper submission deadline\n\s+date:\s+Oct",
+        )
+        self.assertTrue(any("venue" in line for line in log))
 
 
 if __name__ == "__main__":
