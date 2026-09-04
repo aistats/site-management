@@ -325,8 +325,9 @@ def _set_deadline_field(text: str, deadline_name: str, field: str, value: str) -
     Within the first deadlines list item whose name matches, set `field:`.
     If the field line is missing, insert it after the name line.
 
-    Never invent a `time:` line from a date/enddate value — only update `time`
-    when that key already exists on the deadline item.
+    Never invent a `time:` line from a date/enddate value. If the target field
+    is `date` but the item only has an (empty) `time:` key — the 2026 shape —
+    write the calendar string into `time` instead of adding a parallel `date`.
     """
     name_re = re.compile(
         rf"(^([ \t]*)- name:[ \t]*{re.escape(deadline_name)}[ \t]*\n)"
@@ -340,14 +341,19 @@ def _set_deadline_field(text: str, deadline_name: str, field: str, value: str) -
     prefix = match.group(1)
     indent = match.group(2) + "  "
     block = match.group(3)
-    field_re = re.compile(rf"^([ \t]*{re.escape(field)}:)[ \t]*.*$", re.MULTILINE)
+    effective_field = field
+    if field == "date":
+        has_date = re.search(r"^[ \t]*date:", block, re.MULTILINE)
+        has_time = re.search(r"^[ \t]*time:", block, re.MULTILINE)
+        if not has_date and has_time:
+            effective_field = "time"
+    field_re = re.compile(rf"^([ \t]*{re.escape(effective_field)}:)[ \t]*.*$", re.MULTILINE)
     if field_re.search(block):
         new_block = field_re.sub(rf"\1 {value}", block, count=1)
-    elif field == "time":
-        # Do not create time: from calendar deadline strings.
+    elif effective_field == "time":
         return text, False
     else:
-        new_block = f"{indent}{field}: {value}\n" + block
+        new_block = f"{indent}{effective_field}: {value}\n" + block
     start, end = match.span()
     return text[:start] + prefix + new_block + text[end:], True
 
